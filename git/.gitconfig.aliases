@@ -13,6 +13,11 @@
 #
 
 [alias]
+    # CREATE
+		# Copy Visual Studio gitignore into the current folder
+		copy-vs-ignore = !cp ~/.gitignore-vs .gitignore 
+		# Copy Visual Studio gitignore into the current folder, create standard folders, and initialize the repo
+		init-vs = !git init && git copy-vs-ignore && mkdir docs && mkdir source && echo "'#' TITLE" > Readme.md
     # HISTORY AND STATE
       st = status -s
       # List all branches
