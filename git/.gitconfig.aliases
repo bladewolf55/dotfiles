@@ -35,6 +35,8 @@
     # CURRENT CHANGE
       save = !git add -A && git commit -m 'SAVEPOINT'
       undo = reset HEAD~1 --mixed
+      # Removes files or folders (recursively) from the Index
+      untrack = rm -r --cached -- 
       # Hard reset to previous ref, but saves current state first
       restore = "!f(){ git add -A && git commit -qm 'RESTORE SAVEPOINT'; git reset $1 --hard; }; f"
     
