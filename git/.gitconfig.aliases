@@ -14,10 +14,14 @@
 
 [alias]
     # CREATE
-		# Copy Visual Studio gitignore into the current folder
-		copy-vs-ignore = !cp ~/.gitignore-vs .gitignore 
-		# Copy Visual Studio gitignore into the current folder, create standard folders, and initialize the repo
-		init-vs = !git init && git copy-vs-ignore && mkdir docs && mkdir source && echo "'#' TITLE" > Readme.md
+      # Copy Visual Studio gitignore into the current folder
+      copy-vs-ignore = !cp ~/.gitignore-vs .gitignore 
+      # Copy Visual Studio gitignore into the current folder, create standard folders, and initialize the repo
+      init-vs = !git init && git copy-vs-ignore && mkdir docs && mkdir source && echo "'#' TITLE" > Readme.md
+      # Initialize a git repo, rename to _git, copy and append a .gitignore-vs file (see copy-vs-ignore)
+      # to exclude the _git folder, create or append a .tfignore file 
+      # to ignore _git  and .git*
+      init-tfvc = !git init && cp ~/.gitignore-vs .gitignore && mv .git _git && echo "" >> .gitignore && echo "_git/" >> .gitignore && echo "" >> .tfignore && echo "git/" >> .tfignore && echo "git*" >> .tfignore
     # HISTORY AND STATE
       st = status -s
       # List all branches
