@@ -14,61 +14,68 @@
 
 [alias]
     # CREATE
-      # Copy Visual Studio gitignore into the current folder
-      copy-vs-ignore = !cp ~/.gitignore-vs .gitignore 
-      # Copy Visual Studio gitignore into the current folder, create standard folders, and initialize the repo
-      init-vs = !git init && git copy-vs-ignore && mkdir docs && mkdir source && echo "'#' TITLE" > Readme.md
-      # Initialize a git repo, rename to _git, copy and append a .gitignore-vs file (see copy-vs-ignore)
-      # to exclude the _git folder, create or append a .tfignore file 
-      # to ignore _git  and .git*
-      init-tfvc = !git init && cp ~/.gitignore-vs .gitignore && mv .git _git && echo "" >> .gitignore && echo "_git/" >> .gitignore && echo "" >> .tfignore && echo "git/" >> .tfignore && echo "git*" >> .tfignore
+		# Copy Visual Studio gitignore into the current folder
+		copy-vs-ignore = !cp ~/.gitignore-vs .gitignore 
+		# Copy Visual Studio gitignore into the current folder, create standard folders and Readme, and initialize the repo
+		init-vs = !git init && git copy-vs-ignore && mkdir docs && mkdir source && echo "'#' TITLE" > Readme.md
+		# Initialize a git repo, rename to _git, create or append a .gitignore file 
+		# to exclude the _git folder, create or append a .tfignore file 
+		# to ignore _git  and .git*
+		init-tfvc = !git init && mv .git _git && echo "_git/" >> .gitignore && echo "_git" >> .tfignore && echo ".git*" >> .tfignore
     # HISTORY AND STATE
-      st = status -s
-      # List all branches
-      branches = branch -a
-      # Displays last 10 commits by default, or the supplied number of commits
-      hist = "!f() { git log -${1-10} --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\" --graph --date=short; }; f"
-      # All branches
-      hista = "!f() { git log -${1-10} --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\" --graph --date=short --all; }; f"
-      # Generate zip of file differences between two commits. Second commit defaults to HEAD.
-      diffpatch = "!f() { git archive --output=diffs.zip HEAD $(git diff --diff-filter=d --name-only $1 ${2-HEAD}); }; f"
-      # Show renamed or added files
-      # diffshow =  "!f() { git diff $1 ${2-HEAD} --name-only --diff-filter=AR; }; f"
-      diffshow =  "!f() { git diff $1 ${2-HEAD} --name-status ; }; f"
+		st = status -s
+		# List all branches
+		branches = branch -a
+		# Displays all commits for a file
+		histf = log  --graph --date=short --follow --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"  
+		# Displays last 10 commits by default, or the supplied number of commits
+		hist = "!f() { git log -${1-10} --graph --date=short --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"; }; f"
+		# All branches
+		hista = "!f() { git log -${1-10} --graph --date=short --all --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"; }; f"
+		# Generate zip of file differences between two commits. Second commit defaults to HEAD.
+		diffpatch = "!f() { git archive --output=diffs.zip HEAD $(git diff --diff-filter=d --name-only $1 ${2-HEAD}); }; f"
+		# Show renamed or added files
+		diffshow =  "!f() { git diff $1 ${2-HEAD} --name-status ; }; f"		
     
     # CURRENT CHANGE
-      save = !git add -A && git commit -m 'SAVEPOINT'
-      undo = reset HEAD~1 --mixed
-      # Removes files or folders (recursively) from the Index
-      untrack = rm -r --cached -- 
-      # Hard reset to previous ref, but saves current state first
-      restore = "!f(){ git add -A && git commit -qm 'RESTORE SAVEPOINT'; git reset $1 --hard; }; f"
+		save = !git add -A && git commit -m 'SAVEPOINT'
+		undo = reset HEAD~1 --mixed
+		# Removes files or folders (recursively) from the Index
+		untrack = rm -r --cached -- 		# Hard reset to previous ref, but saves current state first
+		restore = "!f(){ git add -A && git commit -qm 'RESTORE SAVEPOINT'; git reset $1 --hard; }; f"		
     
     # GROW, MARK, TWEAK
-      co = checkout 
-      cob = checkout -b 
-      # Commits using supplied message, or opens editor if message omitted
-      # cm = "!f() { git add -A; [ -z \"$1\" ] && git commit || git commit -m \"$1\" ; }; f"
-      # This version lets you continue after entering the first line of the message, and ends when double-quote is entered
-      cm = !git add -A && git commit -m 
-      # Commit and amend, opens editor
-      cma = !git add -A && git commit --amend
-      # Commit and open the interactive editor
-      cmi = !git add -A && git commit 
-      # Rebase onto branch
-      rb = rebase 
-      rbi = rebase -i 
-      rba = rebase --abort
-      # Merge branch into, preserving branch history
-      mb = merge --no-ff --log 
-      mba = merge --abort
-      # Delete branch
-      delb = branch -d 
-      # Tag branch with message = name
-      tagb = tag -a -m ""
-
+		co = checkout 
+		cob = checkout -b 
+		# Commits using supplied message, or opens editor if message omitted
+		# cm = "!f() { git add -A; [ -z \"$1\" ] && git commit || git commit -m \"$1\" ; }; f"
+		# This version lets you continue after entering the first line of the message, and ends when double-quote is entered
+		cm = !git add -A && git commit -m 
+		# Commit and amend, opens editor
+		cma = !git add -A && git commit --amend
+		# Commit and open the interactive editor
+		cmi = !git add -A && git commit 
+		# Rebase onto branch
+		rb = rebase 
+		rbi = rebase -i 
+		rba = rebase --abort
+		# Merge branch into, preserving branch history
+		mb = merge --no-ff --log 
+		mba = merge --abort
+		# Delete branch
+		delb = branch -d 
+		# Tag branch with message = name
+		tagb = tag -a -m ""
+    
     # COLLABORATE
-      sync = !git pull --rebase && git push
-      syncfork = !git checkout master && git pull upstream/master && git push origin/master
-      # Open the remote repository's URL
-      browse = "!f(){ URL=$(git config remote.origin.url); open ${URL%.git}; }; f"
+		sync = !git pull --rebase && git push
+		syncfork = !git checkout master && git pull upstream/master && git push origin/master
+		savesync = !git save && git sync
+		# Open the remote repository's URL
+		browse = "!f(){ URL=$(git config remote.origin.url); explorer ${URL%.git}; }; f"
+	
+	# Phil Haack Aliases
+		up = !git pull --rebase --prune $@ && git submodule update --init --recursive
+		default = !git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'
+		bclean = "!f() { DEFAULT=$(git default); git branch --merged ${1-$DEFAULT} | grep -v " ${1-$DEFAULT}$" | xargs git branch -d; }; f"
+		bdone = "!f() { DEFAULT=$(git default); git checkout ${1-$DEFAULT} && git up && git bclean ${1-$DEFAULT}; }; f"
