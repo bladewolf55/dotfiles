@@ -22,10 +22,16 @@
 		# to exclude the _git folder, create or append a .tfignore file 
 		# to ignore _git  and .git*
 		init-tfvc = !git init && mv .git _git && echo "_git/" >> .gitignore && echo "_git" >> .tfignore && echo ".git*" >> .tfignore
-    # HISTORY AND STATE
+    
+	# HISTORY AND STATE
 		st = status -s
 		# List all branches
 		branches = branch -a
+		# Find string in branch names
+		# branchf = "!f() { pwsh -command 'git branches | Select-String -Pattern' "$1" ; }; f"
+		branchf = "!f() { git branch --list --all --ignore-case *$1* ; }; f"
+		clf = branch --list --all --ignore-case *clf*
+
 		# Displays all commits for a file
 		histf = log  --graph --date=short --follow --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"  
 		# Displays last 10 commits by default, or the supplied number of commits
@@ -35,7 +41,11 @@
 		# Generate zip of file differences between two commits. Second commit defaults to HEAD.
 		diffpatch = "!f() { git archive --output=diffs.zip HEAD $(git diff --diff-filter=d --name-only $1 ${2-HEAD}); }; f"
 		# Show renamed or added files
-		diffshow =  "!f() { git diff $1 ${2-HEAD} --name-status ; }; f"		
+		diffshow =  "!f() { git diff $1 ${2-HEAD} --name-status ; }; f"
+        
+        # Clean
+        cleangood = clean -q -d -f -e .vs -e .vscode
+        cleandeep = clean -q -d -x -f -e .vs -e .vscode
     
     # CURRENT CHANGE
 		save = !git add -A && git commit -m 'SAVEPOINT'
@@ -46,7 +56,7 @@
     
     # GROW, MARK, TWEAK
 		co = checkout 
-		cob = checkout -b 
+		cob = checkout -b 		
 		# Commits using supplied message, or opens editor if message omitted
 		# cm = "!f() { git add -A; [ -z \"$1\" ] && git commit || git commit -m \"$1\" ; }; f"
 		# This version lets you continue after entering the first line of the message, and ends when double-quote is entered
@@ -59,23 +69,32 @@
 		rb = rebase 
 		rbi = rebase -i 
 		rba = rebase --abort
+		rbc = rebase --continue
 		# Merge branch into, preserving branch history
 		mb = merge --no-ff --log 
 		mba = merge --abort
+		mbc = marge --continue
 		# Delete branch
 		delb = branch -d 
+		delbf = branch -D 
 		# Tag branch with message = name
 		tagb = tag -a -m ""
+		# push to remote first time
+		pushr = "!f() { CURRENT=$(git symbolic-ref --short HEAD); git push --set-upstream $1 $CURRENT; }; f"
     
     # COLLABORATE
+	    remotes = remote -v
 		sync = !git pull --rebase && git push
 		syncfork = !git checkout master && git pull upstream/master && git push origin/master
 		savesync = !git save && git sync
 		# Open the remote repository's URL
-		browse = "!f(){ URL=$(git config remote.origin.url); explorer ${URL%.git}; }; f"
+		# Not ideal, but doesn't depend on IE
+		# In your OS, append the PATH with C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application
+		browse = "!f() { URL=$(git config remote.origin.url); brave.exe ${URL%.git}; }; f"
 	
 	# Phil Haack Aliases
 		up = !git pull --rebase --prune $@ && git submodule update --init --recursive
 		default = !git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'
 		bclean = "!f() { DEFAULT=$(git default); git branch --merged ${1-$DEFAULT} | grep -v " ${1-$DEFAULT}$" | xargs git branch -d; }; f"
 		bdone = "!f() { DEFAULT=$(git default); git checkout ${1-$DEFAULT} && git up && git bclean ${1-$DEFAULT}; }; f"
+		migrate = "!f(){ DEFAULT=$(git default); CURRENT=$(git symbolic-ref --short HEAD); git checkout -b $1 && git branch --force $CURRENT ${3-$CURRENT@{u}} && git rebase --onto ${2-$DEFAULT} $CURRENT; }; f"
