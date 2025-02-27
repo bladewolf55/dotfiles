@@ -13,93 +13,127 @@
 #
 
 [alias]
-    # CREATE
-		# Copy Visual Studio gitignore into the current folder
-		copy-vs-ignore = !cp ~/.gitignore-vs .gitignore 
-		# Copy Visual Studio gitignore into the current folder, create standard folders and Readme, and initialize the repo
-		init-vs = !git init -q && git copy-vs-ignore && mkdir docs && mkdir src && cp ~/.git-readme README.md
-    
-	# STATUS AND HISTORY
-		st = status -s
-		# List all branches
-		branches = branch -a
-		# Find string in branch names
-		branchf = "!f() { git branch --list --all --ignore-case *$1* ; }; f"
-		clf = branch --list --all --ignore-case *clf*
-		# Displays last 10 commits by default, or the supplied number of commits
-		hist = "!f() { git log -${1-10} --graph --date=short --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"; }; f"
-		# All branches
-		hista = "!f() { git log -${1-10} --graph --date=short --all --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"; }; f"
-		# Displays all commits for a file
-		histf = log  --graph --date=short --follow --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"  
-		# Show renamed or added files
-		diffshow =  "!f() { git diff $1 ${2-HEAD} --name-status ; }; f"
-		# Generate zip of file differences between two commits. Second commit defaults to HEAD.
-		diffzip = "!f() { git archive --output=diffs.zip HEAD $(git diff --diff-filter=d --name-only $1 ${2-HEAD}); }; f"
-        # Clean, can append more exclusions
-        cleangood = clean -q -d    -f -e .vs -e .vscode 
-        cleandeep = clean -q -d -x -f -e .vs -e .vscode 
-    
-    # CURRENT CHANGE
-		save = !git add -A && git commit -q -m 'SAVEPOINT'
-		undo = reset HEAD~1
-		# Removes files or folders (recursively) from the Index
-		untrack = rm -r --cached -- 		
-		# Hard reset to previous ref, but saves current state first
-		restore = "!f(){ git add -A && git commit -qm 'RESTORE SAVEPOINT'; git reset $1 --hard; }; f"		
-    
-    # GROW, MARK, TWEAK
-		sw = switch -q 
-		swc = switch -q -c 
-		# Commit, allows continuing after entering the first line of the message, and ends when double-quote is entered
-		cm = !git add -A && git commit -q -m 
-		# Commit and amend, opens editor
-		cma = !git add -A && git commit -q --amend
-		# Commit and open the interactive editor
-		cmi = !git add -A && git commit -q 
-		# Fetch remote without leaving branch
-		fm = "!f() { DEFAULT=$(git default); git fetch -q origin $DEFAULT:$DEFAULT; }; f"
-		# Rebase onto branch
-		rb = rebase -q 
-		## Rebase onto main/master
-		rbm  = "!f() { DEFAULT=$(git default); git fm; git rb $DEFAULT; }; f"
-		rbmp =  !git rbm && git push -q -f
-		rbi = rebase -i 
-		rba = rebase --abort
-		rbc = rebase --continue
-		# Merge branch into, preserving branch history
-		mb = merge -q --no-ff --log 
-		mba = merge --abort
-		mbc = marge --continue
-		# Delete branch
-		delb = branch -d 
-		delbf = branch -D 
-		delbo = push --delete origin 
-		# Tag branch with message = name
-		tagb = "!f() { git tag -a -m "$1" $1 ; }; f"
-		tagl = tag -n1 --list 
-		tagd = tag -d 
-		# Tag lightweight, push, delete. For triggering tag-based pipelines.
-		tagtrig = "!f() { git tag $1; git push --tags; git tag -d $1; git push origin --delete $1; }; f"
-		# push to named remote first time
-		pushr = "!f() { CURRENT=$(git symbolic-ref --short HEAD); git push -q --set-upstream $1 $CURRENT; }; f"
-		# push to origin first time
-		pushu = pushr origin 
-    
-    # COLLABORATE
-	    remotes = remote -v
-		# Switch to default and pull
-		sync = "!f() { DEFAULT=$(git default); git sw $DEFAULT; git pull; }; f"
-		# sync and rebase branch onto default
-		syncb = "!f() { DEFAULT=$(git default); CURRENT=$(git symbolic-ref --short HEAD); git sync; git sw $CURRENT; git rb $DEFAULT; }; f"		
-		# Open the remote repository's URL
-		# Not ideal, but doesn't depend on IE
-		browsebrave = "!f() { URL=$(git config remote.origin.url); 'C:/Users/charl/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe' ${URL%.git}; }; f"
-		browseedge  = "!f() { URL=$(git config remote.origin.url); 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe' --profile-directory='Profile 2' $URL; }; f"
-	
-	# Phil Haack Aliases
-		up = !git pull --rebase --prune $@ && git submodule update --init --recursive
-		default = !git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'
-		bclean = "!f() { DEFAULT=$(git default); git branch --merged ${1-$DEFAULT} | grep -v " ${1-$DEFAULT}$" | xargs git branch -d; }; f"
-		bdone = "!f() { DEFAULT=$(git default); git checkout ${1-$DEFAULT} && git up && git bclean ${1-$DEFAULT}; }; f"
-		migrate = "!f() { DEFAULT=$(git default); CURRENT=$(git symbolic-ref --short HEAD); git checkout -b $1 && git branch --force $CURRENT ${3-$CURRENT@{u}} && git rebase --onto ${2-$DEFAULT} $CURRENT; }; f"
+
+# STATUS AND HISTORY
+    st = status -s
+    # List all branches
+    branches = branch -a
+    # Find string in branch names
+    branchf = "!f() { git branch --list --all --ignore-case *$1* ; }; f"
+    clf = branch --list --all --ignore-case *clf* *charles*
+    # Displays last 10 commits by default, or the supplied number of commits
+    histg = "!f() { git log -${1-10} --graph --date=short --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"; }; f"
+    hist = "!f() { git log -${1-10} --date=human --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"; }; f"
+    # All branches
+    histag = "!f() { git log -${1-10} --graph --date=short --all --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"; }; f"
+    hista = "!f() { git log -${1-10} --date=short --all --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"; }; f"
+    # Displays all commits for a file
+    histfg = log --full-history --graph --date=short --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\" --  --follow
+    histf = log --full-history --date=short --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\" --  --follow
+    # Displays commit difference of two branches (or whatever follows)
+    histb = log  --date=short --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"
+    # Displays commit history since commit date
+    histd = "!f() { git log --after=$1 --date=short --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\"; }; f"
+    # Show commit diffs
+    diffcommit = "!f() { git log --date=short --pretty=format:\"%C(auto) %h %ad | %d %s [%an]\" $1; }; f"
+    # Show renamed or added files
+    diffshow =  "!f() { git diff $1 ${2-HEAD} --name-status ; }; f"
+    # Generate zip of file differences between two commits. Second commit defaults to HEAD.
+    diffzip = "!f() { git archive --output=diffs.zip HEAD $(git diff --diff-filter=d --name-only $1 ${2-HEAD}); }; f"
+    # Diff between commit and previous commit
+    # show changed files
+    diffsc =  "!f() { git diffshow $1~1 $1 ; }; f"
+    # show changed text
+    diffc  =  "!f() { git diff $1~1 $1 $2 ; }; f"
+            
+# Clean, can append more exclusions
+	cleangood = clean -q -d    -f -e .vs -e .vscode
+	cleandeep = clean -q -d -x -f -e .vs -e .vscode
+
+# CURRENT CHANGE
+     save = !git add -A && git commit -q -m 'SAVEPOINT'
+     undo = reset HEAD~1
+     # Removes files or folders (recursively) from the Index
+     untrack = rm -r --cached -- 
+
+# GROW, MARK, TWEAK
+    sw = switch -q
+    swc = switch -q -c
+    # switch branch and pull
+    swp = "!f() { git switch -q $1; git pull; }; f"
+    swpd = swp dev
+    swpt = swp test
+    swpm = "!f() { MAIN=$(git mainline); git swp $MAIN; }; f"
+    # Commit, allows continuing after entering the first line of the message, and ends when double-quote is entered
+    cm = !git add -A && git commit -q -m
+    # Commit and amend, opens editor
+    cma = !git add -A && git commit -q --amend
+    # Commit and open the interactive editor
+    cmi = !git add -A && git commit -q
+    # Fetch main remote without leaving branch
+    fm = "!f() { MAIN=$(git mainline); git fetch -q origin $MAIN:$MAIN; }; f"
+    # fetch remote remote-branch:local-branch
+    fd = fetch origin dev:dev
+    # Rebase onto branch
+    rb = rebase -q
+    ## Rebase onto main/master
+    rbm  = "!f() { MAIN=$(git mainline); git fm; git rb $MAIN; }; f"
+    rbmp =  !git rbm && git push -q --force-with-lease
+    rbi = rebase -i
+    rba = rebase --abort
+    rbc = rebase --continue
+    rbd = !git fd && git rb dev
+    # Merge branch into, preserving branch history
+    mb = merge -q --no-ff --log
+    mba = merge --abort
+    mbc = marge --continue
+    # Delete branch
+    delb = branch -d
+    delbf = branch -D
+    delbo = push --delete origin
+    # Tag commit with message = name
+    tagc = "!f() { git tag -a -m "$1" $1 $2; }; f"
+    # tag and push
+    tagpush = "!f() { git tag -a -m "$1" $1 $2 ; git push --follow-tags; }; f"
+    # annotated tag one step
+    taga = "!f() { git tag -a -m "$1" $1 $2 ; }; f"
+    tagl = tag -n1 --list         
+    tagd = tag -d
+    tagdo = push origin --delete
+    # Tag lightweight, push, delete. For triggering tag-based pipelines.
+    tagtrig = "!f() { git tag $1; git push --tags; git tag -d $1; git push origin --delete $1; }; f"
+    # push to named remote first time
+    pushr = "!f() { CURRENT=$(git symbolic-ref --short HEAD); git push -q --set-upstream $1 $CURRENT; }; f"
+    # push to origin first time
+    pushu = pushr origin
+    # push force-with-lease
+    pushf = push -q --force-with-lease
+    # cherry pick
+    cp = cherry-pick
+    cpc = cherry-pick --continue
+    cpa = cherry-pick --abort
+    cpall = "!f() { git swpt; git cp $1; git push; git swpm; git cp $1; git push; }; f"
+   # cherry compare    
+    cherryt = !git sw test && git pull && git sw dev && git pull && git cherry -v test && git sw test
+    cherrym = "!f() { MAIN=$(git mainline); git sw $MAIN && git pull && git sw test && git pull && git cherry -v $MAIN && git sw $MAIN; }; f"
+
+# COLLABORATE
+   remotes = remote -v
+    # Switch to default and pull
+    sync = "!f() { MAIN=$(git mainline); git sw $MAIN; git pull; }; f"
+    # sync and rebase branch onto default
+    syncb = "!f() { MAIN=$(git mainline); CURRENT=$(git symbolic-ref --short HEAD); git sync; git sw $CURRENT; git rb $MAIN; }; f"
+    # Open the remote repository's URL
+    # Not ideal, but doesn't depend on IE
+    browsebrave = "!f() { URL=$(git config remote.origin.url); 'C:/Users/charl/AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe' ${URL%.git}; }; f"
+    browseedge  = "!f() { URL=$(git config remote.origin.url); 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe' --profile-directory='Profile 2' $URL; }; f"
+
+# HELPERS
+    mainline = "!f() { \
+          if git show-ref --verify --quiet refs/heads/main ; \
+          then echo main; \
+          elif git show-ref --verify --quiet refs/heads/master ; \
+          then echo master; \
+          else echo ; \
+          fi \
+          }; f"
